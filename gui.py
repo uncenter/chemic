@@ -35,8 +35,16 @@ def quick_search():
                 result_box = ui.card().classes("w-1/2")
                 with result_box:
                     if molecule.name != "Unknown":
+                        ui.label("Name").classes("font-bold mt-2")
                         ui.label(f"{molecule.name}")
+                        ui.separator()
+                    ui.label("Molecular formula").classes("font-bold mt-2")
                     ui.label(f"{molecule.mass} g/mol")
+                    ui.separator()
+                    ui.label("Percent composition").classes("font-bold mt-2")
+                    composition = get_percent_composition(molecule, False)
+                    for element in composition.items():
+                        ui.label(f"{element[0]}: {round(element[1], 2)}% ({round(element[1], 6)}%, {Element(element[0]).mass} g/mol)")
 
     top_content.clear()
     with top_content:
@@ -141,41 +149,6 @@ def conversions():
             )
             ui.button("Clear", on_click=lambda: clear_all())
 
-def percent_composition():
-    bottom_content.clear()
-    top_content.clear()
-
-    def clear_all():
-        input_a.set_value("")
-        bottom_content.clear()
-
-    def result(value):
-        bottom_content.clear()
-        with bottom_content:
-            result_box = ui.card().classes("w-1/2")
-        with result_box:
-            ui.label(f"Total mass: {Formula(value).mass} g/mol")
-            composition = get_percent_composition(Formula(value), False)
-            for element in composition.items():
-                ui.label(f"{element[0]}: {round(element[1], 2)}% ({round(element[1], 6)}%, {Element(element[0]).mass} g/mol)")
-
-
-    top_content.clear()
-    with top_content:
-        input_box = ui.card().classes("w-1/2")
-    with input_box:
-        input_a = ui.input(
-            label="Molecule",
-            placeholder="Ex. H2O",
-            validation={"Not a molecule": lambda x: isformula(x)},
-        )
-        with ui.row():
-            ui.button(
-                "Submit",
-                on_click=lambda: result(input_a.value),
-            )
-            ui.button("Clear", on_click=lambda: clear_all())
-
 
 def periodic_table():
     def details(data):
@@ -246,13 +219,13 @@ with ui.element("q-tab-panels").props("model-value=A animated").classes(
                     "Conversions",
                     lambda: switch(menu, menu_toggle, "Conversions", conversions),
                 )
-                ui.menu_item(
-                    "Percent composition",
-                    lambda: switch(
-                        menu, menu_toggle, "Percent composition", percent_composition
-                    ),
-                )
             menu_toggle = ui.button("Select", on_click=menu.open).classes("mb-2")
         top_content = ui.row().classes("mt-2")
         bottom_content = ui.row().classes("mt-2")
+    with ui.element("q-tab-panel").props(f"name=info").classes("w-full"):
+        with ui.column():
+            ui.label("Chemic is a chemistry tool that helps you calculate numerous chemistry-related things, interact with the periodic table, and more.")
+            ui.label("This project is open source and can be found on GitHub.")
+            with ui.row():
+                ui.link('Github', "https://github.com/uncenter/chemic", new_tab=True)
 ui.run()
