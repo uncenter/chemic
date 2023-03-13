@@ -4,25 +4,13 @@ from utils import *
 
 import string
 
-from nicegui import ui
-
-ui.colors(primary="#299fbb")
 from typing import Dict
+from nicegui import ui
+ui.colors(primary="#299fbb")
 
-def is_float(string):
-    if string.replace(".", "").isnumeric():
-        return True
-    else:
-        return False
+WIDTH = "w-2/3"
 
-
-def switch(menu, menu_item, text, func, **kwargs):
-    menu.close()
-    menu_item.set_text(text)
-    func(**kwargs)
-
-
-def quick_search():
+def search():
     def result(molecule):
         bottom_content.clear()
         if (
@@ -32,7 +20,7 @@ def quick_search():
         ):
             molecule = Formula(molecule)
             with bottom_content:
-                result_box = ui.card().classes("w-1/2")
+                result_box = ui.card().classes(WIDTH)
                 with result_box:
                     if molecule.name != "Unknown":
                         ui.label("Name").classes("font-bold mt-2")
@@ -40,23 +28,44 @@ def quick_search():
                         ui.separator()
                     ui.label("Molecular formula").classes("font-bold mt-2")
                     ui.label(f"{molecule.mass} g/mol")
-                    ui.separator()
-                    ui.label("Percent composition").classes("font-bold mt-2")
-                    composition = get_percent_composition(molecule, False)
-                    for element in composition.items():
-                        ui.label(f"{element[0]}: {round(element[1], 2)}% ({round(element[1], 6)}%, {Element(element[0]).mass} g/mol)")
+                    if len(molecule.elements) > 1:
+                        ui.separator()
+                        ui.label("Percent composition").classes("font-bold mt-2")
+                        composition = get_percent_composition(molecule, False)
+                        for element in composition.items():
+                            ui.label(
+                                f"{element[0]}: {round(element[1], 2)}% ({round(element[1], 6)}%, {Element(element[0]).mass} g/mol)"
+                            )
+                    else:
+                        molecule = Element(list(molecule.elements.keys())[0])
+                        if molecule.data["Metal"] == "yes":
+                            ui.separator()
+                            ui.label("Type: Metal").classes("font-bold mt-2")
+                        elif molecule.data["Metalloid"] == "yes":
+                            ui.separator()
+                            ui.label("Type: Metalloid").classes("font-bold mt-2")
+                        elif molecule.data["Nonmetal"] == "yes":
+                            ui.separator()
+                            ui.label("Type: Nonmetal").classes("font-bold mt-2")
 
     top_content.clear()
     with top_content:
-        input_box = ui.card().classes("w-1/2")
+        input_box = ui.card().classes(WIDTH)
     with input_box:
+        with ui.card().style("border: 1px solid var(--q-info);"):
+            ui.icon('info', color='blue')
+            ui.label("Enter a formula or element and press submit to search for it. This will display the name, molar mass, percent composition, and type of the molecule.")
+        def submit(value):
+            if value is not None:
+                result(value)
+
         molecule_input = ui.input(
             label="Molecule",
             placeholder="Ex. Fe or H2O",
             validation={"Invalid molecule": lambda x: isformula(x)},
         )
         with ui.row():
-            ui.button("Submit", on_click=lambda: result(molecule_input.value))
+            ui.button("Submit", on_click=lambda: submit(molecule_input.value))
             ui.button(
                 "Clear",
                 on_click=lambda: (molecule_input.set_value(""), bottom_content.clear()),
@@ -75,7 +84,7 @@ def conversions():
     def result(value1, value2, operation):
         bottom_content.clear()
         with bottom_content:
-            result_box = ui.card().classes("w-1/2")
+            result_box = ui.card().classes(WIDTH)
         if operation == 1:
             with result_box:
                 ui.label(
@@ -119,8 +128,15 @@ def conversions():
 
     top_content.clear()
     with top_content:
-        input_box = ui.card().classes("w-1/2")
+        input_box = ui.card().classes("w-2/3")
     with input_box:
+        with ui.card().style("border: 1px solid var(--q-negative);"):
+            ui.icon('warning', color='red')
+            ui.label("This feature is still in development and may not work properly. Confirm calculations are within expected range.")
+        def submit(value, value2, value3):
+            if all([value, value2, value3]):
+                result(value, value2, value3)
+
         operations = {
             1: "Mass to moles",
             2: "Mass to atoms",
@@ -139,19 +155,19 @@ def conversions():
         input_b = ui.input(
             label="Element",
             placeholder="Ex. H",
-            validation={"Not an element": lambda x: iselement(x)},
+            validation={"Not an element": lambda x: isformula(x)},
         )
         input_c = ui.select(label="Operation", options=operations, value=1)
         with ui.row():
             ui.button(
                 "Submit",
-                on_click=lambda: result(input_a.value, input_b.value, input_c.value),
+                on_click=lambda: submit(input_a.value, input_b.value, input_c.value),
             )
             ui.button("Clear", on_click=lambda: clear_all())
 
 
 def periodic_table():
-    def details(data):
+    def result(data):
         bottom_content.clear()
         if (
             molecule not in string.whitespace
@@ -160,7 +176,7 @@ def periodic_table():
         ):
             molecule = Formula(molecule)
             with bottom_content:
-                result_box = ui.card().classes("w-1/2")
+                result_box = ui.card().classes(WIDTH)
                 with result_box:
                     if molecule.name != "Unknown":
                         ui.label(f"{molecule.name}")
@@ -171,17 +187,28 @@ def periodic_table():
     with top_content:
         input_box = ui.card().classes("w-full")
     with input_box:
+        def submit(value):
+            if value is not None:
+                result(value)
         data = pd.read_csv("ptable.csv")
-        columnDefs = [{'headerName': col, 'field': col} for col in data.columns[:7]]
-        rowData = data.to_dict('records')
-        grid = ui.aggrid({
-            'columnDefs': columnDefs,
-            'rowData': rowData,
-            'rowSelection': 'single',
-        })
-        ui.button('View details', on_click=details)
+        columnDefs = [{"headerName": col, "field": col} for col in data.columns[:7]]
+        rowData = data.to_dict("records")
+        grid = ui.aggrid(
+            {
+                "columnDefs": columnDefs,
+                "rowData": rowData,
+                "rowSelection": "single",
+            }
+        )
+        ui.button("View details", on_click=lambda: submit(grid.value))
+
 
 tab_icons = ["home", "info"]
+
+def switch(menu, menu_item, text, func, **kwargs):
+    menu.close()
+    menu_item.set_text(text)
+    func(**kwargs)
 
 
 def switch_tab(msg: Dict) -> None:
@@ -203,16 +230,16 @@ with ui.element("q-tab-panels").props("model-value=A animated").classes(
         with ui.row():
             with ui.menu() as menu:
                 ui.menu_item(
-                    "Quick search",
+                    "Search",
                     on_click=lambda: switch(
-                        menu, menu_toggle, "Quick search", quick_search
+                        menu, menu_toggle, "Search", search
                     ),
                 )
                 ui.menu_item(
                     "Periodic table",
                     on_click=lambda: switch(
                         menu, menu_toggle, "Periodic table", periodic_table
-                    ), 
+                    ),
                 )
                 ui.separator()
                 ui.menu_item(
@@ -224,8 +251,12 @@ with ui.element("q-tab-panels").props("model-value=A animated").classes(
         bottom_content = ui.row().classes("mt-2")
     with ui.element("q-tab-panel").props(f"name=info").classes("w-full"):
         with ui.column():
-            ui.label("Chemic is a chemistry tool that helps you calculate numerous chemistry-related things, interact with the periodic table, and more.")
+            ui.label(
+                "Chemic is a chemistry tool that helps you calculate numerous chemistry-related things, interact with the periodic table, and more."
+            )
             ui.label("This project is open source and can be found on GitHub.")
             with ui.row():
-                ui.link('Github', "https://github.com/uncenter/chemic", new_tab=True)
+                ui.link("Github", "https://github.com/uncenter/chemic", new_tab=True)
+
+
 ui.run()

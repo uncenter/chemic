@@ -1,24 +1,16 @@
 from commoner import *
-from commoner.math import distance
 from utils import validate_cas_number, parse_formula
 
-from os import listdir
-from os.path import isfile, join
 import pandas as pd
 import pydash
 
 paths = {
-    "ptable": "ptable.csv",
-    "formulae": "formulae.csv",
-    "images": "./lib/images",
+    "ptable": "periodic_table.csv",
+    "formulae": "common_formulas.csv"
 }
 
 PERIODIC_TABLE = pd.read_csv(paths["ptable"])
 FORMULA_TABLE = pd.read_csv(paths["formulae"])
-STRUCTURE_IMAGES = [
-    f for f in listdir(paths["images"]) if isfile(join(paths["images"], f))
-]
-
 AVOGADRO = 6.02214076e23
 
 def reconstruct_formula(formula):
@@ -60,22 +52,6 @@ def get_molar_mass(molecule):
     else:
         return None
     return molar_mass
-
-
-def get_structure(formula):
-    """
-    Get the structure (image) of a molecule.
-
-    Args:
-        formula (str): The formula of the molecule.
-    Returns:
-        str: The path to the image of the molecule.
-    """
-    global STRUCTURE_IMAGES
-    if f"{formula}.png" in STRUCTURE_IMAGES:
-        return f"images/{formula}.png"
-    else:
-        return None
 
 
 def get_formula_name(formula, verbose=False):
