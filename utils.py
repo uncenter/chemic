@@ -1,26 +1,5 @@
 from commoner import reverse, replace_all, Shout, Chalk
 
-
-def pretty_print(symbol, name, atomic_number, atomic_mass):
-
-    # References:
-    # https://docs.python.org/3/library/string.html#format-specification-mini-language
-    # https://kuvapcsitrd01.kutztown.edu/~schwesin/fall20/csc223/lectures/Python_String_Formatting.html
-    # https://en.wikipedia.org/wiki/Box-drawing_character
-    blank_line = f"│{22 * ' '}│"
-    top_line = "┌──────────────────────┐"
-    bottom_line = "└──────────────────────┘"
-    separator = "├──────────────────────┤"
-    Chalk.set('bold')
-    print(top_line)
-    print(f"│ {atomic_mass:<10}{atomic_number:>10} │")
-    print(blank_line)
-    print(f"│{symbol:^22}│")
-    print(f"│{22 * ' '}│")
-    print(f"│{name:^22}│")
-    print(bottom_line)
-    Chalk.clear()
-
 def validate_cas_number(cas_num, verbose=True):
     if not isinstance(cas_num, str):
         if verbose:
@@ -80,7 +59,6 @@ def parse_formula(formula):
                 else:
                     break
             if multiplier == None:
-                print("no multiplier found [assuming 1]")
                 multiplier = 1
             for sub_element, sub_num_atoms in result.items():
                 if sub_element in element_dict:
@@ -104,9 +82,6 @@ def parse_formula(formula):
             looking_for_num = True
         elif formula[i].islower():
             if i == 0 or not formula[i - 1].isupper():
-                print(
-                    f'lowercase element ("{formula[i]}") [assuming "{formula[i].upper()}"]'
-                )
                 if formula[i - 1].islower():
                     element_dict[element] = 1
                 element = formula[i].upper()
@@ -126,11 +101,15 @@ def parse_formula(formula):
                 element_dict[element] = num_atoms
             looking_for_num = False
         else:
-            print(f'invalid character ("{formula[i]}")')
             return
     if looking_for_num:
         element_dict[element] = num_atoms
-    return element_dict
+    new_dict = {}
+    for element, num_atoms in element_dict.items():
+        if element != '':
+            new_dict[element] = num_atoms
+    return new_dict
+
 
 def create_menu(*args, cursor="> ", prompt="Select an option: "):
     print(prompt)
