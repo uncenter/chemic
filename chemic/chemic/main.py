@@ -1,17 +1,20 @@
 from commoner import *
-from utils import validate_cas_number, parse_formula
+from .utils import validate_cas_number, parse_formula
 
 import pandas as pd
 import pydash
+import importlib.resources
 
-paths = {
-    "ptable": "periodic_table.csv",
-    "formulae": "common_formulas.csv"
-}
 
-PERIODIC_TABLE = pd.read_csv(paths["ptable"])
-FORMULA_TABLE = pd.read_csv(paths["formulae"])
+PERIODIC_TABLE = pd.read_csv(
+    importlib.resources.open_text("chemic", "periodic_table.csv")
+)
+FORMULA_TABLE = pd.read_csv(
+    importlib.resources.open_text("chemic", "common_formulas.csv")
+)
 AVOGADRO = 6.02214076e23
+L_STP = 22.4
+
 
 def reconstruct_formula(formula):
     """
@@ -30,7 +33,6 @@ def reconstruct_formula(formula):
         else:
             reconstruct_formula.append(f"{element}{formula[element]}")
     return "".join(reconstruct_formula)
-
 
 
 def get_molar_mass(molecule):
@@ -71,18 +73,18 @@ def get_formula_name(formula, verbose=False):
         if verbose:
             Shout.info("CAS number detected")
         if formula in FORMULA_TABLE["CAS"].values:
-            return FORMULA_TABLE[FORMULA_TABLE["CAS"] == formula][
-                "Names"
-            ].values[0]
+            return FORMULA_TABLE[FORMULA_TABLE["CAS"] == formula]["Names"].values[0]
         else:
             return None
     else:
         if verbose:
             Shout.info("Formula detected")
         if formula in FORMULA_TABLE["Formula"].values:
-            return FORMULA_TABLE[FORMULA_TABLE["Formula"] == formula][
-                "Names"
-            ].values[0].split("\n")[0]
+            return (
+                FORMULA_TABLE[FORMULA_TABLE["Formula"] == formula]["Names"]
+                .values[0]
+                .split("\n")[0]
+            )
         else:
             return None
 
@@ -126,6 +128,7 @@ class Element:
         Number Of Electrons: 1
         ...
     """
+
     def __init__(self, attribute):
         if type(attribute) == str:
             if attribute.isdigit():
@@ -296,6 +299,7 @@ class Formula:
         >>> print(Formula("H2O").name)
         Water
     """
+
     def __init__(self, elements):
         if isinstance(elements, str):
             if elements.isdigit():
@@ -529,7 +533,7 @@ def particles_to_mass(molecule, particles):
     Args:
         molecule (Element, Formula, str): The molecule.
         particles (float): The particles.
-        
+
     Returns:
         float: The mass.
     """

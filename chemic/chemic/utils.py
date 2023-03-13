@@ -1,5 +1,6 @@
 from commoner import reverse, replace_all, Shout, Chalk
 
+
 def validate_cas_number(cas_num, verbose=True):
     if not isinstance(cas_num, str):
         if verbose:
@@ -106,18 +107,26 @@ def parse_formula(formula):
         element_dict[element] = num_atoms
     new_dict = {}
     for element, num_atoms in element_dict.items():
-        if element != '':
+        if element != "":
             new_dict[element] = num_atoms
     return new_dict
 
 
-def create_menu(*args, cursor="> ", prompt="Select an option: "):
+def create_menu(*args, cursor="> ", prompt="Select an option: ", color="cyan"):
     print(prompt)
     for i in range(len(args)):
         print(f"{i + 1}. {args[i]}")
     while True:
         try:
-            choice = int(input(Chalk.cyan(cursor)))
+            Chalk.set(color)
+            choice = input(cursor)
+            Chalk.reset()
+            if choice in "".join(args) and not choice.isnumeric() and len(choice) > 1:
+                if sum([choice in i for i in args]) > 1:
+                    raise ValueError
+                for i in range(len(args)):
+                    if choice in args[i]:
+                        return str(i + 1)
             if int(choice) > len(args) or int(choice) < 1:
                 raise ValueError
             return str(choice)

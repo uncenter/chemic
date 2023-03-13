@@ -24,18 +24,22 @@ import chemic
 
 ### Run the CLI
 
-To start the CLI, add the following to your Python script:
+To start the CLI, add/adjust the following to your Python script:
 
 ```python
-chemic.cli()
+from chemic import run
+
+run.cli()
 ```
 
 ### Start the GUI
 
-To start the GUI, add the following to your Python script:
+To start the GUI, add/adjust the following to your Python script:
 
 ```python
-chemic.gui()
+from chemic import run
+
+run.gui()
 ```
 
 This will start a local server and open a web browser to the GUI.
