@@ -73,13 +73,23 @@ def conversions():
     else:
         Shout.error("Invalid choice")
         conversions()
+    if input("Again? (Y/n) ").lower() in ["y", ""]:
+        conversions()
+    else:
+        menu()
 
 def percent_composition():
     Console.clear()
     formula = input("Enter the formula: ")
     if isformula(formula):
         molecule = Formula(formula)
-        get_percent_composition(molecule)
+        comp = get_percent_composition(molecule, True)
+        for element in comp:
+            print(f"{element}: {comp[element]}%")
+            if input("Again? (Y/n) ").lower() in ["y", ""]:
+                percent_composition()
+            else:
+                menu()
     else:
         Shout.error("Invalid formula")
         percent_composition()
@@ -111,6 +121,8 @@ def empirical_molecular():
         menu()
     else:
         Shout.error("Invalid choice")
+        empirical_molecular()
+    if input("Again? (Y/n) ").lower() in ["y", ""]:
         empirical_molecular()
 
 def menu():
