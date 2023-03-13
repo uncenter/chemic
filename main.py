@@ -5,7 +5,6 @@ from utils import validate_cas_number, parse_formula
 from os import listdir
 from os.path import isfile, join
 import pandas as pd
-# Lodash for Python
 import pydash
 
 paths = {
@@ -107,7 +106,7 @@ def get_formula_name(formula, verbose=False):
         if formula in FORMULA_TABLE["Formula"].values:
             return FORMULA_TABLE[FORMULA_TABLE["Formula"] == formula][
                 "Names"
-            ].values[0]
+            ].values[0].split("\n")[0]
         else:
             return None
 
@@ -170,7 +169,6 @@ class Element:
                 self.count = 1
                 break
         else:
-            Shout.error("Invalid element")
             return None
 
     def display(self):
@@ -297,9 +295,6 @@ class Element:
     def __iter__(self):
         return iter(self.data)
 
-    def __getattr__(self, name):
-        return self.data[name]
-
 
 class Formula:
     """
@@ -329,7 +324,7 @@ class Formula:
         if isinstance(elements, str):
             if elements.isdigit():
                 raise ValueError("Invalid formula")
-            elements = parse_formula(elements)
+            elements = parse_formula(elements.strip())
         elif isinstance(elements, Element):
             elements = {elements: 1}
         else:
@@ -341,7 +336,12 @@ class Formula:
         self.mass = get_molar_mass(self)
         self.name = get_formula_name(reconstruct_formula(self.elements))
         if self.name == None:
-            self.name = "Unknown"
+            if len(self.elements) == 1:
+                element = list(self.elements.keys())[0]
+                if element in PERIODIC_TABLE["Symbol"].values:
+                    self.name = Element(element).name
+            else:
+                self.name = "Unknown"
         else:
             self.name = str(self.name).title()
         self.count = 0
@@ -435,7 +435,7 @@ def iselement(value):
     try:
         Element(value)
         return True
-    except ValueError:
+    except:
         return False
 
 
@@ -452,7 +452,7 @@ def isformula(value):
     try:
         Formula(value)
         return True
-    except ValueError:
+    except:
         return False
 
 
