@@ -2,11 +2,11 @@
 
 Chemic is a Python library for chemistry students and teachers. It is designed to be easy to use and to provide a simple interface to search for information and to perform calculations.
 
-The core of Chemic can be found in `main.py` and `utils.py`. The `main.py` file contains the main functions for searching and calculating. The `utils.py` file contains the functions for parsing the data files and for performing calculations. The `data` folder contains the source data files.
+The core of Chemic can be found in `main.py` and `utils.py`. The `main.py` file contains the main functions for searching and calculating. The `utils.py` file contains the functions for parsing the data files and for performing calculations.
 
 ## Installation
 
-CHemic is available on PyPI. To install it, run the following command:
+Chemic is available on PyPI. To install it, run the following command:
 
 ```bash
 pip install chemic
@@ -43,3 +43,7 @@ run.gui()
 ```
 
 This will start a local server and open a web browser to the GUI.
+
+## Source and Installable
+
+You can run Chemic without installing by grabbing the `build/main.py` file on GitHub. Also in the `build` folder is the `chemic` installable. Run it and ignore any errors in the console.
