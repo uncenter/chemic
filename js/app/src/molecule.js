@@ -1,4 +1,4 @@
-import data from './data.json' assert { type: 'json' };
+import data from "../../data.json" assert { type: "json" };
 
 const AVOGADRO = 6.02214076e23;
 
@@ -74,7 +74,8 @@ export function parseFormula(string) {
                     char += string[string.indexOf(char) + 1];
                     skip = true;
                 }
-                const lastElement = Object.keys(elements)[Object.keys(elements).length - 1];
+                const lastElement =
+                    Object.keys(elements)[Object.keys(elements).length - 1];
                 elements[lastElement] *= parseInt(char);
             }
         }
@@ -122,14 +123,18 @@ function populateAttributes(attribute) {
  * @method toAtoms - Returns the number of atoms in a sample of the molecule
  * @method toParticles - Returns the number of particles in a sample of the molecule
  * @method toMoles - Returns the number of moles in a sample of the molecule
- * 
+ *
  * @example
  * const water = new Molecule("H2O");
  * const water = new Molecule({H: 2, O: 1});
  */
 export class Molecule {
     constructor(attribute) {
-        if (typeof attribute === "string" && attribute.length <= 2 && attribute.length > 0) {
+        if (
+            typeof attribute === "string" &&
+            attribute.length <= 2 &&
+            attribute.length > 0
+        ) {
             if (populateAttributes(attribute).length === 1) {
                 const attributes = populateAttributes(attribute)[0];
                 this.name = attributes.Element;
@@ -140,7 +145,7 @@ export class Molecule {
                 this.elements = parseFormula(this.symbol);
                 this.data = attributes;
             }
-        } else if (typeof(attribute) === "object") {
+        } else if (typeof attribute === "object") {
             this.elements = attribute;
             this.name = "";
             this.symbol = "";
@@ -163,19 +168,17 @@ export class Molecule {
         }
     }
 
-    toAtoms(sampleMass=1) {
+    toAtoms(sampleMass = 1) {
         return (sampleMass / this.mass) * AVOGADRO * this.count;
     }
 
-    toParticles(sampleMass=1) {
+    toParticles(sampleMass = 1) {
         return (sampleMass / this.mass) * AVOGADRO;
     }
 
     toMoles(sampleMass) {
-        return sampleMass / this.mass
+        return sampleMass / this.mass;
     }
-
-
 
     toFormula() {
         let formula = "";
