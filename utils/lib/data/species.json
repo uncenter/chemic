@@ -1,0 +1,8 @@
+{
+    "name": "NIST Chemistry WebBook",
+    "description": "A collection of data from the NIST Chemistry WebBook",
+    "version": "A list of all of the chemical species in this release of the NIST Chemistry WebBook",
+    "source": "https://webbook.nist.gov/chemistry/download/",
+    "license": "",
+    "author": "robertwb"
+}
